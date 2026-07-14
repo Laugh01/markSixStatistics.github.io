@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生肖 · 数字统计（含杀半头功能）</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f3f7fb;
+            padding: 2rem 1.5rem;
+            display: flex;
+            justify-content: center;
+            color: #142433;
+        }
+        .container {
+            max-width: 1280px;
+            width: 100%;
+            background: white;
+            border-radius: 2.5rem;
+            box-shadow: 0 20px 40px -12px rgba(0,20,30,0.2);
+            padding: 2rem 2rem 2.5rem;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.3rem;
+        }
+        .sub {
+            color: #2d4b6a;
+            background: #e9f0f8;
+            padding: 0.4rem 1.2rem;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 1.8rem;
+            border-left: 4px solid #2a6f97;
+        }
+        .input-area {
+            background: #f7faff;
+            border-radius: 1.8rem;
+            padding: 1.5rem 1.8rem;
+            border: 1px solid #dde7f0;
+            margin-bottom: 2.2rem;
+        }
+        .input-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+        #numberInput {
+            flex: 3;
+            min-width: 200px;
+            padding: 0.9rem 1.5rem;
+            border-radius: 60px;
+            border: 1px solid #c9d6e4;
+            font-size: 1rem;
+            background: white;
+            transition: 0.2s;
+            font-family: 'Inter', monospace;
+        }
+        #numberInput:focus {
+            outline: none;
+            border-color: #2a6f97;
+            box-shadow: 0 0 0 3px rgba(42,111,151,0.2);
+        }
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+        }
+        .btn {
+            padding: 0.8rem 1.8rem;
+            border: none;
+            border-radius: 60px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            background: white;
+            color: #142433;
+            border: 1px solid #c9d6e4;
+            cursor: pointer;
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .btn-primary {
+            background: #142433;
+            border-color: #142433;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #0b1a2b;
+            transform: scale(0.97);
+        }
+        .btn-outline:hover {
+            background: #eaf0f6;
+        }
+        .btn-success {
+            background: #1a3a2b;
+            border-color: #1a3a2b;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #0f2a1e;
+            transform: scale(0.97);
+        }
+        .btn-copy {
+            background: #2a4b6e;
+            border-color: #2a4b6e;
+            color: white;
+        }
+        .btn-copy:hover {
+            background: #1c3854;
+            transform: scale(0.97);
+        }
+        .filter-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1rem;
+            padding: 1rem 1.2rem;
+            background: #f0f5fc;
+            border-radius: 1.2rem;
+            border: 1px solid #dce6f0;
+            align-items: flex-start;
+        }
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            align-items: center;
+        }
+        .filter-group label {
+            font-weight: 500;
+            font-size: 0.8rem;
+            color: #1f3a57;
+            margin-right: 0.2rem;
+            min-width: 3rem;
+        }
+        .filter-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.2rem;
+            background: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            border: 1px solid #c9d6e4;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.1s;
+            user-select: none;
+        }
+        .filter-tag:hover {
+            background: #eaf0f6;
+        }
+        .filter-tag.active {
+            background: #142433;
+            color: white;
+            border-color: #142433;
+        }
+        .filter-tag.active:hover {
+            background: #0b1a2b;
+        }
+        .filter-tag.tail {
+            min-width: 2.2rem;
+            justify-content: center;
+        }
+        .filter-tag.half {
+            min-width: 3.2rem;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+        .filter-clear {
+            font-size: 0.7rem;
+            color: #6f8aa3;
+            cursor: pointer;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            border: 1px solid transparent;
+            transition: 0.1s;
+        }
+        .filter-clear:hover {
+            background: #dce6f0;
+            border-color: #c9d6e4;
+        }
+        .filter-status {
+            font-size: 0.75rem;
+            color: #5a3d3d;
+            background: #f5ecec;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            white-space: nowrap;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem 0.9rem;
+            margin: 0.8rem 0 0.5rem;
+            font-size: 0.85rem;
+            background: #eef4fa;
+            padding: 0.6rem 1.2rem;
+            border-radius: 40px;
+            align-items: center;
+        }
+        .legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.8rem;
+            margin-top: 0.8rem;
+        }
+        @media (max-width: 720px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 1.5rem;
+            }
+        }
+        .panel {
+            background: #ffffff;
+            border-radius: 1.8rem;
+            border: 1px solid #e2ecf5;
+            padding: 0.2rem 0 0.8rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1.2rem 0.5rem 1.2rem;
+            border-bottom: 1px solid #eaf1f8;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+        .panel-header h2 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #2f4b66;
+        }
+        .badge {
+            background: #e3ecf5;
+            padding: 0.2rem 0.9rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .stat-list {
+            max-height: 460px;
+            overflow-y: auto;
+            padding: 0.3rem 0.2rem 0.2rem 0.2rem;
+        }
+        .stat-list::-webkit-scrollbar {
+            width: 5px;
+        }
+        .stat-list::-webkit-scrollbar-track {
+            background: #f0f5fa;
+            border-radius: 8px;
+        }
+        .stat-list::-webkit-scrollbar-thumb {
+            background: #bccddb;
+            border-radius: 8px;
+        }
+        .zodiac-group {
+            margin: 0.3rem 0.6rem;
+            background: #fafdff;
+            border-radius: 1.2rem;
+            border: 1px solid #e9f0f7;
+        }
+        .zodiac-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: #f2f8ff;
+            border-radius: 1.2rem 1.2rem 0 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1a3853;
+            border-bottom: 1px solid #deeaf5;
+            flex-wrap: wrap;
+        }
+        .zodiac-title small {
+            font-weight: 400;
+            font-size: 0.7rem;
+            background: #d7e3f0;
+            padding: 0.1rem 0.8rem;
+            border-radius: 40px;
+            color: #1b3f5c;
+        }
+        .zodiac-title .killed-badge {
+            background: #d4a0a0;
+            color: #5a1a1a;
+            font-size: 0.65rem;
+            padding: 0.05rem 0.6rem;
+            border-radius: 30px;
+        }
+        .number-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.3rem 1rem 0.3rem 1.5rem;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #f0f5fc;
+            align-items: center;
+        }
+        .number-item:last-child {
+            border-bottom: none;
+        }
+        .number-item.killed {
+            opacity: 0.35;
+            background: #f5f5f5;
+            text-decoration: line-through;
+        }
+        .num-value {
+            font-weight: 500;
+            background: #ecf3fa;
+            padding: 0.05rem 0.9rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+        }
+        .num-count {
+            font-weight: 600;
+            background: #e1eaf3;
+            padding: 0.05rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            min-width: 2rem;
+            text-align: center;
+        }
+        .num-count.highlight {
+            background: #1e3b4f;
+            color: white;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 2.5rem 0.5rem;
+            color: #5b748b;
+        }
+        .empty-state span {
+            font-size: 2.2rem;
+            display: block;
+            margin-bottom: 0.4rem;
+        }
+        .footer {
+            margin-top: 1.8rem;
+            font-size: 0.75rem;
+            color: #6f8aa3;
+            text-align: right;
+            border-top: 1px solid #eaf1f8;
+            padding-top: 1.2rem;
+        }
+        .dup-highlight {
+            background: #fef7e9;
+            border-left: 3px solid #b68b40;
+        }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a2f44;
+            color: white;
+            padding: 0.7rem 2rem;
+            border-radius: 60px;
+            font-size: 0.95rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 999;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        .copy-hint {
+            font-size: 0.8rem;
+            color: #3a5e7a;
+            background: #e8f0f8;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+        }
+        .copy-info {
+            font-size: 0.75rem;
+            color: #2a4b6e;
+            background: #e3ecf5;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            margin-left: 0.5rem;
+        }
+        .copy-mode-selector {
+            display: flex;
+            gap: 0.3rem;
+            align-items: center;
+            background: #e8f0f8;
+            padding: 0.15rem 0.4rem;
+            border-radius: 30px;
+            margin-left: 0.3rem;
+        }
+        .copy-mode-btn {
+            padding: 0.2rem 0.8rem;
+            border: 1px solid transparent;
+            border-radius: 30px;
+            background: transparent;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.1s;
+            color: #3a5e7a;
+        }
+        .copy-mode-btn.active {
+            background: white;
+            border-color: #2a4b6e;
+            color: #142433;
+            font-weight: 600;
+        }
+        .copy-mode-btn:hover:not(.active) {
+            background: #dce6f0;
+        }
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            width: 100%;
+            align-items: flex-start;
+        }
+        .filter-group-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            align-items: center;
+            background: rgba(255,255,255,0.5);
+            padding: 0.2rem 0.6rem;
+            border-radius: 30px;
+            border: 1px solid #dce6f0;
+        }
+        .filter-group-wrapper label {
+            font-weight: 600;
+            font-size: 0.7rem;
+            color: #1f3a57;
+            margin-right: 0.1rem;
+        }
+        .half-tag {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.6rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🐉 生肖 · 数字统计</h1>
+    <div class="sub">⚡ 支持杀生肖 · 杀尾号 · 杀半头(0-4头) · 复制过滤结果</div>
+
+    <div class="input-area">
+        <div class="input-row">
+            <input type="text" id="numberInput" placeholder="输入球号，用空格/逗号分隔" value="">
+            <div class="btn-group">
+                <button class="btn btn-primary" id="analyzeBtn">📊 统计</button>
+                <button class="btn btn-outline" id="clearBtn">✕ 清空</button>
+            </div>
+        </div>
+        <div style="margin-top: 0.8rem; display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;">
+            <button class="btn btn-success" id="exampleBtn">📌 载入示例</button>
+            <button class="btn btn-copy" id="copyDupBtn">📋 复制结果</button>
+            <span class="copy-hint">复制过滤后的数字</span>
+            <span class="copy-info" id="copyCountInfo">0 个可复制</span>
+            <div class="copy-mode-selector">
+                <button class="copy-mode-btn active" id="copyModeAll" data-mode="all">所有数字</button>
+                <button class="copy-mode-btn" id="copyModeDup" data-mode="dup">仅重复</button>
+            </div>
+        </div>
+
+        <!-- 过滤区域 -->
+        <div class="filter-area">
+            <div class="filter-row">
+                <!-- 杀生肖 -->
+                <div class="filter-group-wrapper">
+                    <label>🔪 生肖</label>
+                    <span id="zodiacFilterTags"></span>
+                    <span class="filter-clear" id="clearZodiacFilter">✕</span>
+                </div>
+                <!-- 杀尾号 -->
+                <div class="filter-group-wrapper">
+                    <label>🔢 尾号</label>
+                    <span id="tailFilterTags"></span>
+                    <span class="filter-clear" id="clearTailFilter">✕</span>
+                </div>
+                <!-- 杀半头 -->
+                <div class="filter-group-wrapper">
+                    <label>🎯 半头</label>
+                    <span id="halfFilterTags"></span>
+                    <span class="filter-clear" id="clearHalfFilter">✕</span>
+                </div>
+                <span class="filter-status" id="filterStatus">未应用过滤</span>
+            </div>
+        </div>
+
+        <div class="legend">
+            <span>🐴 马</span><span>🐍 蛇</span><span>🐲 龙</span><span>🐰 兔</span><span>🐯 虎</span><span>🐮 牛</span>
+            <span>🐭 鼠</span><span>🐷 猪</span><span>🐶 狗</span><span>🐔 鸡</span><span>🐵 猴</span><span>🐏 羊</span>
+            <span style="margin-left: auto; opacity:0.7;">🔁 重复高亮 · 杀号灰色划掉</span>
+        </div>
+    </div>
+
+    <!-- 统计面板 -->
+    <div class="stats-grid">
+        <div class="panel">
+            <div class="panel-header">
+                <h2>🧩 生肖 · 数字频次</h2>
+                <span class="badge" id="totalZodiacBadge">0 个生肖</span>
+            </div>
+            <div class="stat-list" id="zodiacStatsList">
+                <div class="empty-state"><span>📋</span>输入数字后点击统计</div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <h2>🔁 重复结果</h2>
+                <span class="badge" id="dupZodiacBadge">0 个重复</span>
+            </div>
+            <div class="stat-list" id="duplicateZodiacList">
+                <div class="empty-state"><span>✨</span>暂无重复数字</div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">🐾 杀半头覆盖 0-4头 · 复制功能支持「所有数字」和「仅重复」</div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast">✅ 已复制</div>
+
+<script>
+    (function() {
+        // ----- 十二生肖映射 -----
+        const ZODIAC_NAMES = ['马','蛇','龙','兔','虎','牛','鼠','猪','狗','鸡','猴','羊'];
+        const ZODIAC_EMOJI = ['🐴','🐍','🐲','🐰','🐯','🐮','🐭','🐷','🐶','🐔','🐵','🐏'];
+
+        function getZodiacIndex(num) {
+            if (num < 1 || num > 49) return -1;
+            return (num - 1) % 12;
+        }
+
+        function getZodiacInfo(num) {
+            const idx = getZodiacIndex(num);
+            if (idx === -1) return null;
+            return { index: idx, name: ZODIAC_NAMES[idx], emoji: ZODIAC_EMOJI[idx] };
+        }
+
+        // ----- 杀半头定义 (0-4头) -----
+        const HALF_HEAD_DEFS = [
+            { key: '0头单', head: 0, tailType: 'odd' },
+            { key: '0头双', head: 0, tailType: 'even' },
+            { key: '1头单', head: 1, tailType: 'odd' },
+            { key: '1头双', head: 1, tailType: 'even' },
+            { key: '2头单', head: 2, tailType: 'odd' },
+            { key: '2头双', head: 2, tailType: 'even' },
+            { key: '3头单', head: 3, tailType: 'odd' },
+            { key: '3头双', head: 3, tailType: 'even' },
+            { key: '4头单', head: 4, tailType: 'odd' },
+            { key: '4头双', head: 4, tailType: 'even' }
+        ];
+
+        // 判断数字是否匹配某个半头定义
+        function matchesHalfHead(num, def) {
+            if (num < 1 || num > 49) return false;
+            const head = Math.floor(num / 10);
+            const tail = num % 10;
+            if (head !== def.head) return false;
+            if (def.tailType === 'odd' && tail % 2 === 0) return false;
+            if (def.tailType === 'even' && tail % 2 === 1) return false;
+            return true;
+        }
+
+        // 获取半头key对应的数字列表 (用于显示提示)
+        function getHalfHeadNumbers(def) {
+            const result = [];
+            for (let i = 0; i <= 9; i++) {
+                const num = def.head * 10 + i;
+                if (num >= 1 && num <= 49) {
+                    if (def.tailType === 'odd' && i % 2 === 1) result.push(num);
+                    if (def.tailType === 'even' && i % 2 === 0) result.push(num);
+                }
+            }
+            return result;
+        }
+
+        // ----- 状态 -----
+        let currentGroups = Array.from({ length: 12 }, () => ({}));
+        let killedZodiacs = new Set();
+        let killedTails = new Set();
+        let killedHalfHeads = new Set();
+        let copyMode = 'all';
+
+        // ----- 解析输入 -----
+        function parseNumberList(raw) {
+            if (!raw.trim()) return [];
+            let cleaned = raw.replace(/[，、\s]+/g, ',');
+            const tokens = cleaned.split(',').map(s => s.trim()).filter(s => s !== '');
+            const numbers = tokens.map(Number).filter(n => !isNaN(n) && Number.isInteger(n) && n >= 1 && n <= 49);
+            return numbers;
+        }
+
+        // ----- 统计 -----
+        function computeZodiacStats(numbers) {
+            const groups = Array.from({ length: 12 }, () => ({}));
+            numbers.forEach(num => {
+                const info = getZodiacInfo(num);
+                if (!info) return;
+                const idx = info.index;
+                if (!groups[idx][num]) groups[idx][num] = 0;
+                groups[idx][num] += 1;
+            });
+            return groups;
+        }
+
+        // ----- 判断数字是否被过滤 -----
+        function isNumberKilled(num) {
+            if (killedZodiacs.size === 0 && killedTails.size === 0 && killedHalfHeads.size === 0) return false;
+            
+            const info = getZodiacInfo(num);
+            if (!info) return false;
+            
+            // 杀生肖
+            if (killedZodiacs.has(info.index)) return true;
+            
+            // 杀尾号
+            const tail = num % 10;
+            if (killedTails.has(tail)) return true;
+            
+            // 杀半头
+            for (const key of killedHalfHeads) {
+                const def = HALF_HEAD_DEFS.find(d => d.key === key);
+                if (def && matchesHalfHead(num, def)) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        // ----- 提取过滤后的所有数字 -----
+        function getAllFilteredNumbers(groups) {
+            const numSet = new Set();
+            groups.forEach((group, idx) => {
+                if (killedZodiacs.has(idx)) return;
+                Object.entries(group).forEach(([num]) => {
+                    const numInt = parseInt(num, 10);
+                    if (!isNumberKilled(numInt)) {
+                        numSet.add(numInt);
+                    }
+                });
+            });
+            return Array.from(numSet).sort((a, b) => a - b);
+        }
+
+        // ----- 提取重复数字 -----
+        function getDuplicateNumbers(groups) {
+            const dupSet = new Set();
+            groups.forEach((group, idx) => {
+                if (killedZodiacs.has(idx)) return;
+                Object.entries(group).forEach(([num, count]) => {
+                    const numInt = parseInt(num, 10);
+                    if (count >= 2 && !isNumberKilled(numInt)) {
+                        dupSet.add(numInt);
+                    }
+                });
+            });
+            return Array.from(dupSet).sort((a, b) => a - b);
+        }
+
+        // ----- 更新复制信息 -----
+        function updateCopyInfo() {
+            const numbers = copyMode === 'all' 
+                ? getAllFilteredNumbers(currentGroups) 
+                : getDuplicateNumbers(currentGroups);
+            const infoEl = document.getElementById('copyCountInfo');
+            if (numbers.length === 0) {
+                infoEl.textContent = '0 个可复制';
+                infoEl.style.background = '#e3ecf5';
+                infoEl.style.color = '#2a4b6e';
+            } else {
+                infoEl.textContent = `${numbers.length} 个可复制`;
+                infoEl.style.background = '#2a4b6e';
+                infoEl.style.color = 'white';
+            }
+        }
+
+        // ----- 渲染统计 -----
+        function renderZodiacStats(groups) {
+            const container = document.getElementById('zodiacStatsList');
+            const badge = document.getElementById('totalZodiacBadge');
+
+            let totalNumbers = 0;
+            let activeZodiacs = 0;
+            let html = '';
+
+            for (let idx = 0; idx < 12; idx++) {
+                const group = groups[idx];
+                const entries = Object.entries(group);
+                if (entries.length === 0) continue;
+                
+                const filtered = entries.filter(([num]) => !isNumberKilled(parseInt(num, 10)));
+                if (filtered.length === 0) continue;
+                
+                activeZodiacs++;
+                filtered.sort((a, b) => parseInt(a[0], 10) - parseInt(b[0], 10));
+                const totalInGroup = filtered.reduce((sum, [,cnt]) => sum + cnt, 0);
+                totalNumbers += totalInGroup;
+
+                const isKilled = killedZodiacs.has(idx);
+                const killedLabel = isKilled ? ' <span class="killed-badge">🔪 已杀</span>' : '';
+
+                html += `<div class="zodiac-group" style="${isKilled ? 'opacity:0.6;' : ''}">`;
+                html += `<div class="zodiac-title">${ZODIAC_EMOJI[idx]} ${ZODIAC_NAMES[idx]} ${killedLabel}<small>共 ${totalInGroup} 个数字</small></div>`;
+                for (let [num, count] of filtered) {
+                    const numInt = parseInt(num, 10);
+                    const isDup = count >= 2;
+                    const highlight = isDup ? 'highlight' : '';
+                    const killedClass = isNumberKilled(numInt) ? 'killed' : '';
+                    html += `
+                        <div class="number-item ${isDup ? 'dup-highlight' : ''} ${killedClass}">
+                            <span class="num-value">${num}</span>
+                            <span class="num-count ${highlight}">${count}</span>
+                        </div>
+                    `;
+                }
+                html += `</div>`;
+            }
+
+            if (activeZodiacs === 0) {
+                container.innerHTML = `<div class="empty-state"><span>📋</span>暂无数字或全部被过滤</div>`;
+                badge.textContent = '0 个生肖';
+                return;
+            }
+
+            container.innerHTML = html;
+            badge.textContent = `${activeZodiacs} 个生肖 · ${totalNumbers} 个数字`;
+        }
+
+        // ----- 渲染重复结果 -----
+        function renderDuplicateZodiac(groups) {
+            const container = document.getElementById('duplicateZodiacList');
+            const badge = document.getElementById('dupZodiacBadge');
+
+            let totalDupItems = 0;
+            let html = '';
+
+            for (let idx = 0; idx < 12; idx++) {
+                if (killedZodiacs.has(idx)) continue;
+                const group = groups[idx];
+                const entries = Object.entries(group).filter(([num, cnt]) => {
+                    const numInt = parseInt(num, 10);
+                    return cnt >= 2 && !isNumberKilled(numInt);
+                });
+                if (entries.length === 0) continue;
+
+                entries.sort((a, b) => {
+                    if (b[1] !== a[1]) return b[1] - a[1];
+                    return parseInt(a[0], 10) - parseInt(b[0], 10);
+                });
+
+                totalDupItems += entries.length;
+
+                html += `<div class="zodiac-group" style="border-color: #d9b382;">`;
+                html += `<div class="zodiac-title" style="background: #fcf3e6;">${ZODIAC_EMOJI[idx]} ${ZODIAC_NAMES[idx]} <small>🔁 ${entries.length} 个重复</small></div>`;
+                for (let [num, count] of entries) {
+                    html += `
+                        <div class="number-item" style="border-left: 3px solid #b68b40; background: #fffcf5;">
+                            <span class="num-value" style="background: #f5e6d3;">${num}</span>
+                            <span class="num-count" style="background: #e8d5b8; font-weight:700;">${count}</span>
+                        </div>
+                    `;
+                }
+                html += `</div>`;
+            }
+
+            if (totalDupItems === 0) {
+                container.innerHTML = `<div class="empty-state"><span>✨</span>暂无重复数字或全部被过滤</div>`;
+                badge.textContent = '0 个重复';
+                return;
+            }
+
+            container.innerHTML = html;
+            badge.textContent = `${totalDupItems} 个重复数字`;
+        }
+
+        // ----- 主统计 -----
+        function performStat() {
+            const raw = document.getElementById('numberInput').value;
+            const numbers = parseNumberList(raw);
+            if (numbers.length === 0) {
+                const emptyGroups = Array.from({ length: 12 }, () => ({}));
+                currentGroups = emptyGroups;
+                renderZodiacStats(emptyGroups);
+                renderDuplicateZodiac(emptyGroups);
+                updateFilterStatus();
+                updateCopyInfo();
+                return;
+            }
+
+            const groups = computeZodiacStats(numbers);
+            currentGroups = groups;
+            renderZodiacStats(groups);
+            renderDuplicateZodiac(groups);
+            updateFilterStatus();
+            updateCopyInfo();
+        }
+
+        // ----- 更新过滤状态 -----
+        function updateFilterStatus() {
+            const status = document.getElementById('filterStatus');
+            const parts = [];
+            if (killedZodiacs.size > 0) {
+                const names = Array.from(killedZodiacs).map(idx => ZODIAC_NAMES[idx]);
+                parts.push(`杀生肖: ${names.join(', ')}`);
+            }
+            if (killedTails.size > 0) {
+                const tails = Array.from(killedTails).sort((a,b) => a-b);
+                parts.push(`杀尾号: ${tails.join(', ')}尾`);
+            }
+            if (killedHalfHeads.size > 0) {
+                const keys = Array.from(killedHalfHeads);
+                parts.push(`杀半头: ${keys.join(', ')}`);
+            }
+            if (parts.length === 0) {
+                status.textContent = '未应用过滤';
+                status.style.background = '#f0f5fc';
+                status.style.color = '#3a5e7a';
+            } else {
+                status.textContent = parts.join(' · ');
+                status.style.background = '#f5ecec';
+                status.style.color = '#5a3d3d';
+            }
+        }
+
+        // ----- 切换生肖 -----
+        function toggleZodiac(idx) {
+            if (killedZodiacs.has(idx)) killedZodiacs.delete(idx);
+            else killedZodiacs.add(idx);
+            updateFilterTags();
+            performStat();
+        }
+
+        // ----- 切换尾号 -----
+        function toggleTail(tail) {
+            if (killedTails.has(tail)) killedTails.delete(tail);
+            else killedTails.add(tail);
+            updateFilterTags();
+            performStat();
+        }
+
+        // ----- 切换半头 -----
+        function toggleHalfHead(key) {
+            if (killedHalfHeads.has(key)) killedHalfHeads.delete(key);
+            else killedHalfHeads.add(key);
+            updateFilterTags();
+            performStat();
+        }
+
+        // ----- 更新过滤标签 -----
+        function updateFilterTags() {
+            // 生肖
+            const zodiacContainer = document.getElementById('zodiacFilterTags');
+            let zodiacHtml = '';
+            for (let i = 0; i < 12; i++) {
+                const active = killedZodiacs.has(i) ? 'active' : '';
+                zodiacHtml += `<span class="filter-tag ${active}" data-zodiac="${i}">${ZODIAC_EMOJI[i]}${ZODIAC_NAMES[i]}</span>`;
+            }
+            zodiacContainer.innerHTML = zodiacHtml;
+
+            // 尾号
+            const tailContainer = document.getElementById('tailFilterTags');
+            let tailHtml = '';
+            for (let t = 0; t <= 9; t++) {
+                const active = killedTails.has(t) ? 'active' : '';
+                tailHtml += `<span class="filter-tag tail ${active}" data-tail="${t}">${t}尾</span>`;
+            }
+            tailContainer.innerHTML = tailHtml;
+
+            // 半头
+            const halfContainer = document.getElementById('halfFilterTags');
+            let halfHtml = '';
+            for (const def of HALF_HEAD_DEFS) {
+                const active = killedHalfHeads.has(def.key) ? 'active' : '';
+                const nums = getHalfHeadNumbers(def);
+                const label = `${def.key} (${nums.join(',')})`;
+                halfHtml += `<span class="filter-tag half ${active}" data-half="${def.key}" title="${label}">${def.key}</span>`;
+            }
+            halfContainer.innerHTML = halfHtml;
+
+            // 绑定事件
+            document.querySelectorAll('#zodiacFilterTags .filter-tag').forEach(el => {
+                el.addEventListener('click', function() {
+                    toggleZodiac(parseInt(this.dataset.zodiac, 10));
+                });
+            });
+            document.querySelectorAll('#tailFilterTags .filter-tag').forEach(el => {
+                el.addEventListener('click', function() {
+                    toggleTail(parseInt(this.dataset.tail, 10));
+                });
+            });
+            document.querySelectorAll('#halfFilterTags .filter-tag').forEach(el => {
+                el.addEventListener('click', function() {
+                    toggleHalfHead(this.dataset.half);
+                });
+            });
+        }
+
+        // ----- 清除过滤 -----
+        function clearFilters() {
+            killedZodiacs.clear();
+            killedTails.clear();
+            killedHalfHeads.clear();
+            updateFilterTags();
+            performStat();
+        }
+
+        // ----- 复制结果 -----
+        function copyResult() {
+            let numbers;
+            let modeLabel = '';
+            if (copyMode === 'all') {
+                numbers = getAllFilteredNumbers(currentGroups);
+                modeLabel = '所有数字';
+            } else {
+                numbers = getDuplicateNumbers(currentGroups);
+                modeLabel = '重复数字';
+            }
+
+            if (numbers.length === 0) {
+                showToast(`⚠️ 没有可复制的${modeLabel}`);
+                return;
+            }
+            const text = numbers.join(',');
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast(`✅ 已复制 ${numbers.length} 个${modeLabel}`);
+                }).catch(() => fallbackCopy(text, numbers.length, modeLabel));
+            } else {
+                fallbackCopy(text, numbers.length, modeLabel);
+            }
+        }
+
+        function fallbackCopy(text, count, modeLabel) {
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-9999px';
+                textarea.style.top = '-9999px';
+                document.body.appendChild(textarea);
+                textarea.select();
+                const success = document.execCommand('copy');
+                document.body.removeChild(textarea);
+                if (success) {
+                    showToast(`✅ 已复制 ${count} 个${modeLabel}`);
+                } else {
+                    prompt(`请手动复制 (Ctrl+C):`, text);
+                    showToast(`📋 已显示在对话框中`);
+                }
+            } catch (e) {
+                alert(`请手动复制:\n\n${text}`);
+                showToast(`📋 已显示`);
+            }
+        }
+
+        // ----- Toast -----
+        let toastTimer = null;
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // ----- 切换复制模式 -----
+        function setCopyMode(mode) {
+            copyMode = mode;
+            document.querySelectorAll('.copy-mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            updateCopyInfo();
+        }
+
+        // ----- 清空 -----
+        function clearAll() {
+            document.getElementById('numberInput').value = '';
+            const emptyGroups = Array.from({ length: 12 }, () => ({}));
+            currentGroups = emptyGroups;
+            killedZodiacs.clear();
+            killedTails.clear();
+            killedHalfHeads.clear();
+            updateFilterTags();
+            renderZodiacStats(emptyGroups);
+            renderDuplicateZodiac(emptyGroups);
+            updateFilterStatus();
+            updateCopyInfo();
+        }
+
+        // ----- 示例 -----
+        function loadExample() {
+            const example = '1, 5, 12, 23, 5, 8, 12, 30, 7, 5, 19, 23, 23, 8, 1, 12, 30, 30, 30, 44, 44, 44, 49, 49, 7, 7, 7';
+            document.getElementById('numberInput').value = example;
+            killedZodiacs.clear();
+            killedTails.clear();
+            killedHalfHeads.clear();
+            killedZodiacs.add(7);
+            killedTails.add(3);
+            killedHalfHeads.add('0头单');
+            killedHalfHeads.add('1头单');
+            killedHalfHeads.add('4头双');
+            updateFilterTags();
+            performStat();
+        }
+
+        // ----- 初始化 -----
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('analyzeBtn').addEventListener('click', performStat);
+            document.getElementById('clearBtn').addEventListener('click', clearAll);
+            document.getElementById('exampleBtn').addEventListener('click', loadExample);
+            document.getElementById('copyDupBtn').addEventListener('click', copyResult);
+            document.getElementById('clearZodiacFilter').addEventListener('click', function() {
+                killedZodiacs.clear();
+                updateFilterTags();
+                performStat();
+            });
+            document.getElementById('clearTailFilter').addEventListener('click', function() {
+                killedTails.clear();
+                updateFilterTags();
+                performStat();
+            });
+            document.getElementById('clearHalfFilter').addEventListener('click', function() {
+                killedHalfHeads.clear();
+                updateFilterTags();
+                performStat();
+            });
+
+            document.getElementById('copyModeAll').addEventListener('click', function() {
+                setCopyMode('all');
+            });
+            document.getElementById('copyModeDup').addEventListener('click', function() {
+                setCopyMode('dup');
+            });
+
+            document.getElementById('numberInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    performStat();
+                }
+            });
+
+            updateFilterTags();
+            performStat();
+            setCopyMode('all');
+        });
+    })();
+</script>
+</body>
+</html>
